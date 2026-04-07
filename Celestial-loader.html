@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestial Loader - Detailed Realistic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; background-color: #030303; overflow: hidden; font-family: monospace; }
+        
+        #space { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; 
+        }
+
+        /* --- Celestial Bodies & Textures --- */
+        
+        /* Sun: High-frequency plasma turbulence */
+        .texture-sun::after {
+            content: '';
+            position: absolute;
+            inset: -20px; 
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.08' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.8'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: plasmaSpin 30s linear infinite;
+        }
+
+        @keyframes plasmaSpin {
+            from { transform: rotate(0deg) scale(1.1); }
+            to { transform: rotate(360deg) scale(1.1); }
+        }
+
+        /* Earth Ocean Base */
+        .earth-base {
+            background: radial-gradient(circle at 30% 30%, #2563eb 0%, #1e3a8a 60%, #0f172a 100%);
+        }
+
+        /* Precise Earth Continents (Strict 29% Land Ratio) 
+           Generated via feColorMatrix thresholding on seamlessly stitched noise */
+        .earth-land {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='land'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.01' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.05 0 0 0 0 0.65 0 0 0 0 0.25 0 0 0 40 -22'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23land)'/%3E%3C/svg%3E");
+            background-size: 96px 48px; /* 2x Width for perfect equirectangular wrap */
+            animation: rotatePlanet 30s linear infinite;
+        }
+
+        /* Moving Clouds Layer (Independent weather patterns) */
+        .earth-clouds {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='clouds'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 20 -11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23clouds)'/%3E%3C/svg%3E");
+            background-size: 96px 48px;
+            animation: rotateClouds 24s linear infinite; /* Slightly faster than land to show drift */
+            opacity: 0.85; 
+        }
+
+        /* Earth Atmospheric Glow Overlay */
+        .texture-earth::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Pixel-perfect seamless loops for the 48px wide Earth */
+        @keyframes rotatePlanet {
+            from { background-position: 0px 0; }
+            to { background-position: 96px 0; } 
+        }
+        @keyframes rotateClouds {
+            from { background-position: 0px 0; }
+            to { background-position: 96px 0; }
+        }
+
+        /* Moon: Dense, pockmarked crater noise */
+        .texture-moon::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .sun {
+            /* Smoldering deep red with a slightly brighter burning core */
+            background: radial-gradient(circle at 50% 50%, #ea580c 0%, #9a3412 15%, #7f1d1d 35%, #450a0a 60%, #1a0500 85%, #000000 100%);
+            animation: coronaPulse 3s infinite alternate ease-in-out;
+            border-radius: 50%;
+            overflow: hidden; 
+        }
+
+        @keyframes coronaPulse {
+            0% { box-shadow: 0 0 60px rgba(153, 27, 27, 0.7), inset 0 0 50px rgba(127, 29, 29, 0.6); }
+            100% { box-shadow: 0 0 100px rgba(234, 88, 12, 0.8), inset 0 0 80px rgba(185, 28, 28, 0.9); }
+        }
+
+        .moon {
+            /* Realistic Moon colors */
+            background: radial-gradient(circle at 30% 30%, #f3f4f6 0%, #9ca3af 50%, #1f2937 85%, #000000 100%);
+            box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.9), 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Progress Bar --- */
+        .cloudy-line {
+            filter: url(#cloud-filter) drop-shadow(0 0 5px rgba(255,255,255,0.4));
+            background: white;
+            border-radius: 10px;
+        }
+
+        /* --- Orbital Animations --- */
+        @keyframes orbit-moon {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes counter-orbit-moon {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        .earth-orbit-container {
+            position: absolute;
+            left: -250px; 
+            top: 50%;
+            margin-top: -250px;
+            width: 500px;
+            height: 500px;
+            border: 1px dashed rgba(255, 255, 255, 0.4); 
+            border-radius: 50%;
+        }
+
+        .earth-wrapper {
+            position: absolute;
+            right: -24px; 
+            top: 50%;
+            margin-top: -24px;
+            width: 48px;  
+            height: 48px;
+        }
+
+        .moon-orbit-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -55px; 
+            margin-top: -55px;
+            width: 110px;
+            height: 110px;
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation: orbit-moon 5s linear infinite;
+        }
+
+        .moon-wrapper {
+            position: absolute;
+            right: -10px; 
+            top: 50%;
+            margin-top: -10px;
+            width: 20px; 
+            height: 20px;
+            animation: counter-orbit-moon 5s linear infinite;
+        }
+
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center h-screen">
+
+    <!-- Deep Space Canvas -->
+    <canvas id="space"></canvas>
+
+    <!-- Celestial Layout -->
+    <div class="relative w-full h-full flex items-center z-10 overflow-hidden pointer-events-none">
+        
+        <!-- Darker, Textured Burning Sun -->
+        <div class="sun absolute w-64 h-64 z-20" style="left: -128px; top: 50%; margin-top: -128px;">
+            <div class="texture-sun w-full h-full opacity-60"></div>
+        </div>
+
+        <!-- Earth's massive orbit around the Sun -->
+        <div class="earth-orbit-container z-30" id="earth-orbit">
+            <div class="earth-wrapper" id="earth-wrapper">
+                
+                <!-- Redesigned Earth with precise continents and independent clouds -->
+                <div class="absolute inset-0 rounded-full overflow-hidden">
+                    <div class="absolute inset-0 earth-base"></div>
+                    <div class="absolute inset-0 earth-land"></div>
+                    <div class="absolute inset-0 texture-earth"></div>
+                    <div class="absolute inset-0 earth-clouds"></div>
+                    <!-- 3D Shadow Overlay -->
+                    <div class="absolute inset-0 rounded-full shadow-[inset_-12px_-12px_20px_rgba(0,0,0,0.8),inset_4px_4px_10px_rgba(255,255,255,0.3)] pointer-events-none"></div>
+                </div>
+
+                <!-- Moon's orbit around Earth -->
+                <div class="moon-orbit-container">
+                    <div class="moon-wrapper">
+                        <div class="moon texture-moon w-full h-full rounded-full"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- UI Overlay (Progress Bar) -->
+    <div class="absolute bottom-[2em] w-full z-40">
+        <div class="flex justify-end text-gray-300 text-[11px] tracking-[0.3em] mb-2 px-4 uppercase">
+            <span id="percent">0%</span>
+        </div>
+        
+        <!-- Track Container -->
+        <div class="h-6 w-full relative" id="track">
+            <!-- Cloudy Trail left behind by the Rocket -->
+            <div id="fill" class="absolute top-1/2 -mt-[1.5px] left-0 h-[3px] cloudy-line opacity-40" style="width: 0%"></div>
+            
+            <!-- Highly Detailed Rocket -->
+            <div id="rocket-wrapper" class="absolute top-1/2 -mt-4 -ml-4 w-8 h-8" style="transform: translateX(0);">
+                <svg class="transform rotate-90 drop-shadow-[0_0_10px_rgba(255,255,255,0.6)]" viewBox="0 0 64 64" style="overflow: visible;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="rocketBody" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#94a3b8" />
+                            <stop offset="50%" stop-color="#f8fafc" />
+                            <stop offset="100%" stop-color="#64748b" />
+                        </linearGradient>
+                        <linearGradient id="rocketFin" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#475569" />
+                            <stop offset="100%" stop-color="#1e293b" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Fire Exhaust -->
+                    <polygon points="28,60 32,80 36,60" fill="#ea580c">
+                        <animate attributeName="points" values="28,60 32,80 36,60; 28,60 32,70 36,60; 28,60 32,85 36,60" dur="0.15s" repeatCount="indefinite"/>
+                    </polygon>
+                    <polygon points="30,60 32,70 34,60" fill="#fef08a">
+                        <animate attributeName="points" values="30,60 32,70 34,60; 30,60 32,65 34,60; 30,60 32,75 34,60" dur="0.1s" repeatCount="indefinite"/>
+                    </polygon>
+                    <!-- Left Fin -->
+                    <path d="M 32 40 L 16 56 L 26 60 L 32 50 Z" fill="url(#rocketFin)" />
+                    <!-- Right Fin -->
+                    <path d="M 32 40 L 48 56 L 38 60 L 32 50 Z" fill="url(#rocketFin)" />
+                    <!-- Engine Nozzle -->
+                    <rect x="27" y="52" width="10" height="8" fill="#334155" rx="2" />
+                    <!-- Main Body -->
+                    <path d="M 32 4 C 20 20 24 52 24 52 L 40 52 C 40 52 44 20 32 4 Z" fill="url(#rocketBody)" />
+                    <!-- Panel Texture Lines -->
+                    <path d="M 26 40 L 38 40 M 27 46 L 37 46" stroke="#475569" stroke-width="1" />
+                    <!-- Window Outer Frame -->
+                    <circle cx="32" cy="24" r="5" fill="#0369a1" stroke="#1e293b" stroke-width="2" />
+                    <!-- Window Glass Reflection -->
+                    <circle cx="34" cy="22" r="1.5" fill="#bae6fd" /> 
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden SVG Filter for Cloudy Trail -->
+    <svg style="width:0;height:0;position:absolute;">
+        <filter id="cloud-filter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+            <feGaussianBlur stdDeviation="0.5" />
+        </filter>
+    </svg>
+
+    <script>
+        // --- 1. Realistic Deep Space Background ---
+        const canvas = document.getElementById('space');
+        const ctx = canvas.getContext('2d');
+
+        let stars = [];
+        let particles = [];
+        let meteors = [];
+        let bigMeteors = [];
+        let sunSparks = [];
+        const starColors = ['#ffffff', '#ffe9c4', '#d4fbff', '#ffdddd'];
+
+        // Helper to generate an uneven rock meteor that safely avoids the Earth/Moon
+        function spawnBigMeteor() {
+            let x, y, angle;
+            // SAFE ZONE: Earth & Moon occupy x: 0 to ~350px.
+            // Spawning exclusively on the right side and moving outwards ensures no collisions.
+            if (Math.random() > 0.5) { 
+                // Spawn Top-Right, moving Down-Right
+                x = Math.random() * (canvas.width * 0.5) + 350; 
+                y = -200;
+                angle = (Math.PI / 8) + Math.random() * (Math.PI / 4); // 22.5 to 67.5 degrees
+            } else { 
+                // Spawn Bottom-Right, moving Up-Right
+                x = Math.random() * (canvas.width * 0.5) + 350; 
+                y = window.innerHeight + 200;
+                angle = -(Math.PI / 8) - Math.random() * (Math.PI / 4); // -22.5 to -67.5 degrees
+            }
+            
+            // Generate uneven rock vertices using procedural noise
+            let vertices = [];
+            let numPoints = 8 + Math.floor(Math.random() * 5);
+            let baseRadius = 8 + Math.random() * 4;
+            for(let i = 0; i < numPoints; i++) {
+                let a = (i / numPoints) * Math.PI * 2;
+                let r = baseRadius + (Math.random() * baseRadius * 0.8 - baseRadius * 0.4);
+                vertices.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
+            }
+
+            return { x, y, angle, speed: Math.random() * 1.5 + 0.8, length: Math.random() * 200 + 150, vertices };
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initSpace();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function initSpace() {
+            stars = [];
+            particles = [];
+            meteors = [];
+            bigMeteors = [];
+            sunSparks = [];
+            
+            // Generate initial uneven fiery rock
+            bigMeteors.push(spawnBigMeteor());
+
+            // Generate Static Stars with unique colors and opacity
+            for (let i = 0; i < 60; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5,
+                    alpha: Math.random() * 0.8 + 0.1,
+                    color: starColors[Math.floor(Math.random() * starColors.length)]
+                });
+            }
+
+            // Generate Drifting Spatial Particles
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2,
+                    speedX: (Math.random() - 0.5) * 0.3 - 0.2, 
+                    speedY: (Math.random() - 0.5) * 0.1,
+                    alpha: Math.random() * 0.5 + 0.2
+                });
+            }
+        }
+
+        function animateSpace() {
+            ctx.fillStyle = '#030303'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Emit Sun Sparks
+            if (Math.random() < 0.1) { 
+                let angle = (Math.random() * Math.PI) - (Math.PI / 2); // Right side arc
+                let sunRadius = 125; 
+                sunSparks.push({
+                    x: Math.max(0, Math.cos(angle) * sunRadius),
+                    y: (canvas.height / 2) + Math.sin(angle) * sunRadius,
+                    vx: Math.cos(angle) * (Math.random() * 0.8 + 0.2),
+                    vy: Math.sin(angle) * (Math.random() * 0.8 + 0.2) - 0.1, 
+                    size: Math.random() * 1.5 + 0.5, 
+                    life: 0.8,
+                    decay: Math.random() * 0.02 + 0.01 
+                });
+            }
+
+            // Draw Sun Sparks
+            for (let i = sunSparks.length - 1; i >= 0; i--) {
+                let s = sunSparks[i];
+                s.x += s.vx;
+                s.y += s.vy;
+                s.life -= s.decay;
+
+                if (s.life <= 0) {
+                    sunSparks.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.fillStyle = `rgba(251, 146, 60, ${s.life})`; 
+                ctx.shadowColor = 'rgba(234, 88, 12, 0.5)'; 
+                ctx.shadowBlur = 5; 
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Draw Big Fiery Meteors (Uneven Rock, Safe Zone Routing)
+            bigMeteors.forEach((m, index) => {
+                m.x += Math.cos(m.angle) * m.speed;
+                m.y += Math.sin(m.angle) * m.speed;
+
+                ctx.save();
+                
+                // Tail End coordinates trailing strictly behind
+                let tailX = m.x - Math.cos(m.angle) * m.length;
+                let tailY = m.y - Math.sin(m.angle) * m.length;
+
+                // Complex Fiery Tail
+                let grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
+                grad.addColorStop(0, 'rgba(255, 237, 213, 1)'); 
+                grad.addColorStop(0.08, 'rgba(234, 88, 12, 0.9)'); 
+                grad.addColorStop(0.4, 'rgba(153, 27, 27, 0.5)'); 
+                grad.addColorStop(1, 'rgba(0, 0, 0, 0)'); 
+                
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 12; 
+                ctx.lineCap = 'round';
+                ctx.shadowColor = 'rgba(234, 88, 12, 1)';
+                ctx.shadowBlur = 20; 
+                
+                ctx.beginPath();
+                ctx.moveTo(m.x, m.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.stroke();
+                
+                // Draw Uneven Rock Body
+                ctx.fillStyle = '#292524'; 
+                ctx.strokeStyle = 'rgba(251, 146, 60, 0.8)'; 
+                ctx.lineWidth = 2;
+                ctx.shadowBlur = 10; 
+                
+                ctx.beginPath();
+                m.vertices.forEach((v, idx) => {
+                    if (idx === 0) ctx.moveTo(m.x + v.x, m.y + v.y);
+                    else ctx.lineTo(m.x + v.x, m.y + v.y);
+                });
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Emitting tiny sparks from the meteor rock tail
+                for(let j = 0; j < 2; j++) {
+                    let sparkX = m.x - Math.cos(m.angle) * (Math.random() * 40);
+                    let sparkY = m.y - Math.sin(m.angle) * (Math.random() * 40);
+                    ctx.fillStyle = 'rgba(251, 146, 60, 0.7)';
+                    ctx.shadowBlur = 5;
+                    ctx.beginPath();
+                    ctx.arc(sparkX, sparkY, Math.random() * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+
+                // Respawn meteor safely once it goes far off screen
+                if (m.x > canvas.width + 500 || m.y < -500 || m.y > canvas.height + 500) {
+                    bigMeteors[index] = spawnBigMeteor();
+                }
+            });
+
+            // Draw Detailed Stars with glow and color variations
+            stars.forEach(star => {
+                ctx.save();
+                ctx.fillStyle = star.color;
+                ctx.globalAlpha = star.alpha;
+                ctx.shadowBlur = star.size * 3; 
+                ctx.shadowColor = star.color;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw Drifting Particles
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+
+                ctx.fillStyle = `rgba(200, 200, 200, ${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Fast Meteor Logic (Avoiding Earth Safe Zone)
+            if (Math.random() < 0.015) { 
+                meteors.push({
+                    x: Math.random() * (canvas.width * 0.5) + 350, // Strict spawn outside safe zone
+                    y: -50,
+                    length: Math.random() * 100 + 50,
+                    speed: Math.random() * 15 + 8,
+                    angle: (Math.PI / 8) + Math.random() * (Math.PI / 4), // Move down-right
+                    alpha: 1
+                });
+            }
+
+            for (let i = meteors.length - 1; i >= 0; i--) {
+                let m = meteors[i];
+                // Move Right and Down
+                m.x += Math.cos(m.angle) * m.speed;
+                m.y += Math.sin(m.angle) * m.speed;
+                m.alpha -= 0.015; 
+
+                if (m.alpha <= 0) {
+                    meteors.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = m.alpha;
+                
+                // Tail trailing behind
+                let tailX = m.x - Math.cos(m.angle) * m.length;
+                let tailY = m.y - Math.sin(m.angle) * m.length;
+
+                let grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.5;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(m.x, m.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.stroke();
+
+                // Small Glowing Head for fast meteors
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+
+            requestAnimationFrame(animateSpace);
+        }
+        
+        resizeCanvas();
+        animateSpace();
+
+        // --- 2. Rocket Progress Simulation ---
+        const percentEl = document.getElementById('percent');
+        const trackEl = document.getElementById('track');
+        const fillEl = document.getElementById('fill');
+        const rocketWrapperEl = document.getElementById('rocket-wrapper');
+        const earthOrbitEl = document.getElementById('earth-orbit');
+        const earthWrapperEl = document.getElementById('earth-wrapper');
+
+        const loadDuration = 20000; // 20 seconds total load time
+        let startTimestamp = null;
+
+        function animateLoader(timestamp) {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const elapsed = timestamp - startTimestamp;
+            
+            const progress = Math.min(elapsed / loadDuration, 1);
+            const loadPercentage = progress * 100;
+
+            percentEl.innerText = Math.floor(loadPercentage) + "%";
+
+            const trackWidth = trackEl.clientWidth;
+            const currentTranslateX = progress * trackWidth;
+
+            const startAngle = -90;
+            const endAngle = 0;
+            const currentAngle = startAngle + (progress * (endAngle - startAngle));
+            
+            earthOrbitEl.style.transform = `rotate(${currentAngle}deg)`;
+            earthWrapperEl.style.transform = `rotate(${-currentAngle}deg)`; 
+
+            rocketWrapperEl.style.transform = `translateX(${currentTranslateX}px)`;
+            fillEl.style.width = `${currentTranslateX}px`;
+
+            if (progress >= 1) {
+                percentEl.innerText = "100%";
+                percentEl.classList.add("text-white", "animate-pulse");
+            }
+
+            if (progress < 1) {
+                requestAnimationFrame(animateLoader);
+            }
+        }
+
+        requestAnimationFrame(animateLoader);
+
+    </script>
+</body>
+</html>
