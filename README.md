@@ -15,4 +15,26 @@ This project is a single-file, zero-dependency (aside from Tailwind CSS via CDN)
 * **Deep Space Canvas:** * **Dynamic Particles:** Generates stars, drifting spatial dust, and dynamic sun sparks.
   * **Smart Meteors:** Features procedurally generated "uneven rock" meteors with fiery trails that are programmed with a "safe zone" to avoid colliding with the Earth and Moon.
   * **Fast Shooting Stars:** Occasional fast-moving streaks across the deep black background.
-* **Animated Progress Bar:** * Features a highly detailed, custom SVG
+* **Animated Progress Bar:** * Features a highly detailed, custom SVG rocket with animated fire exhaust.
+  * Leaves behind a dynamic "cloudy trail" powered by SVG displacement maps (`<feDisplacementMap>`).
+  * Smooth 20-second simulated loading sequence.
+
+---
+
+## 🛠️ Technologies Used
+
+* **HTML5:** Semantic structure and `<canvas>` integration.
+* **Tailwind CSS:** Utility-first styling (imported via CDN for rapid layout alignment).
+* **Vanilla CSS3:** Advanced `@keyframes`, `mix-blend-mode`, and complex layered styling for planetary bodies.
+* **Vanilla JavaScript:** Frame-by-frame Canvas rendering, particle physics, and progress bar timekeeping.
+* **SVG Filters:** Heavy use of `<feTurbulence>`, `<feColorMatrix>`, and `<feGaussianBlur>` to generate realistic terrain and weather patterns natively without external image assets.
+
+---
+
+## 🚀 Getting Started
+
+Since this is a standalone file, no complex build tools or package managers are required.
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/yourusername/celestial-loader.git](https://github.com/yourusername/celestial-loader.git)
